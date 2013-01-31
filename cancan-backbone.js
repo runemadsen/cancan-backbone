@@ -3,23 +3,38 @@
   /* Ability 
   ----------------------------------------------------------------- */
 
-  var Ability = Backbone.Model.extend({
+  var root = this;
 
-    rules : [],
+  root.Ability = Backbone.Model.extend({
 
-    //def default_alias_actions
-    //  {
-    //    :read => [:index, :show],
-    //    :create => [:new],
-    //    :update => [:edit],
-    //  }
-    //end
+    defaults : {
+      
+      //def rules
+      //  @rules ||= []
+      //end
+  
+      rules : [],
+  
+      //def aliased_actions
+      //  @aliased_actions ||= default_alias_actions
+      //end
+  
+      //def default_alias_actions
+      //  {
+      //    :read => [:index, :show],
+      //    :create => [:new],
+      //    :update => [:edit],
+      //  }
+      //end
+  
+      aliased_actions : {
+        read : ["index", "show"],
+        create : ["new"],
+        update : ["edit"]
+      }
 
-    aliased_actions : {
-      read : ["index", "show"],
-      create : ["new"],
-      update : ["edit"]
     },
+    
 
     //def can?(action, subject, *extra_args)
     //  match = relevant_rules_for_match(action, subject).detect do |rule|
@@ -52,7 +67,7 @@
 
     set_can : function(action, subject, conditions)
     {
-      this.rules.push(new Rule({base_behavior:true, action:action, subject:subject, conditions:conditions}));
+      this.get("rules").push(new Rule({base_behavior:true, action:action, subject:subject, conditions:conditions}));
     },
 
     //def cannot(action = nil, subject = nil, conditions = nil, &block)
@@ -61,7 +76,7 @@
 
     set_cannot : function(action, subject, conditions)
     {
-      this.rules.push(new Rule({base_behavior:false, action:action, subject:subject, conditions:conditions}));
+      this.get("rules").push(new Rule({base_behavior:false, action:action, subject:subject, conditions:conditions}));
     },
 
     //def alias_action(*args)
@@ -77,8 +92,8 @@
     alias_action : function(from, target)
     {
       this.validate_target(target);
-      if(!_.isArray(this.aliased_actions[target])) this.aliased_actions[target] = [];
-      this.aliased_actions[target] = this.aliased_actions[target].concat(from);
+      if(!_.isArray(this.get("aliased_actions")[target])) this.get("aliased_actions")[target] = [];
+      this.get("aliased_actions")[target] = this.get("aliased_actions")[target].concat(from);
     },
 
     //def validate_target(target)
@@ -87,15 +102,11 @@
 
     validate_target : function(target)
     {
-      if _.chain(this.aliased_actions).values().flatten().include(target)
+      if(_.chain(this.get("aliased_actions")).values().flatten().include(target))
       {
         throw new Error("You can't specify target ("+target+") as alias because it is real action name");
       }
     },
-
-    //def aliased_actions
-    //  @aliased_actions ||= default_alias_actions
-    //end
 
     //def clear_aliased_actions
     //  @aliased_actions = {}
@@ -103,7 +114,7 @@
 
     clear_aliased_actions : function()
     {
-      this.aliased_actions = {};
+      this.set("aliased_actions", {});
     },
 
     //def model_adapter(model_class, action)
@@ -178,9 +189,9 @@
     expand_actions : function(actions)
     {
       return _.chain(actions).map(function(action) {
-        if(this.aliased_actions[action])
+        if(this.get("aliased_actions")[action])
         {
-          return [action].concat(this.expand_actions(this.aliased_actions[action]));
+          return [action].concat(this.expand_actions(this.get("aliased_actions")[action]));
         }
         else
         {
@@ -199,10 +210,6 @@
     //  results
     //end
 
-    //def rules
-    //  @rules ||= []
-    //end
-
     //# Returns an array of Rule instances which match the action and subject
     //# This does not take into consideration any hash conditions or block statements
     //def relevant_rules(action, subject)
@@ -217,7 +224,7 @@
       var reversed_rules = this.rules.slice(0);
       _.select(reversed_rules.reverse(), function(rule)
       {
-        rule.expanded_actions = this.expand_actions(rule.actions)
+        rule.set("expanded_actions") = this.expand_actions(rule.actions)
         return rule.is_relevant(action, subject);
       });
     }
@@ -243,9 +250,10 @@
   /* Rule 
   ----------------------------------------------------------------- */
 
-  var Rule = Backbone.Model.extend({
+  root.Rule = Backbone.Model.extend({
 
     //attr_reader :base_behavior, :subjects, :actions, :conditions
+    
     //attr_writer :expanded_actions
 
     //# The first argument when initializing is the base_behavior which is a true/false
@@ -262,15 +270,25 @@
     //  @block = block
     //end
 
+    initialize : function()
+    {
+      this.set("actions", _.flatten(this.get("action")));
+      this.set("subjects", _.flatten(this.get("subject")));
+      if(!this.get("conditions"))
+      {
+        this.set("conditions", {});
+      }
+    },
+
     //# Matches both the subject and action, not necessarily the conditions
     //def relevant?(action, subject)
     //  subject = subject.values.first if subject.class == Hash
     //  @match_all || (matches_action?(action) && matches_subject?(subject))
     //end
 
-    is_relevant : function()
+    is_relevant : function(action, subject)
     {
-
+      return this.matches_action(action) && this.matches_subject(subject);
     },
 
     //# Matches the block or conditions hash
@@ -291,15 +309,15 @@
 
     matches_conditions : function(action, subject)
     {
-      if this.conditions.kind_of?(Hash) && subject.class == Hash
-        nested_subject_matches_conditions?(subject)
-      elsif @conditions.kind_of?(Hash) && !subject_class?(subject)
-        matches_conditions_hash?(subject)
+      if(_.isObject(this.get("conditions")))
+      {
+        this.matches_conditions_hash(subject);
+      }
       else
-        # Don't stop at "cannot" definitions when there are conditions.
-        @conditions.empty? ? true : @base_behavior
-      end
-    }
+      {
+        return _.isEmpty(this.get("conditions")) ? true : this.get("base_behavior");
+      }
+    },
 
     //def only_block?
     //  conditions_empty? && !@block.nil?
@@ -345,13 +363,36 @@
     //  @expanded_actions.include?(:manage) || @expanded_actions.include?(action)
     //end
 
+    matches_action : function(action)
+    {
+      _.include(this.get("expanded_actions"), "manage") || _.include(this.get("expanded_actions"), action)
+    },
+
     //def matches_subject?(subject)
     //  @subjects.include?(:all) || @subjects.include?(subject) || matches_subject_class?(subject)
     //end
 
+    matches_subject : function(subject)
+    {
+      _.include(this.get("subjects"), "all") || _.include(this.get("subjects"), subject) || this.matches_subject_class(subject)
+    },
+
     //def matches_subject_class?(subject)
     //  @subjects.any? { |sub| sub.kind_of?(Module) && (subject.kind_of?(sub) || subject.class.to_s == sub.to_s || subject.kind_of?(Module) && subject.ancestors.include?(sub)) }
     //end
+    //
+    // JS doesn't have class types, so you need to have a function called class_name on your models that return the class name if passing in an object
+
+    matches_subject_class : function(subject)
+    {
+      return _.any(this.get("subjects"), function(sub) {
+        if(_.isObject(subject) && subject.class_name)
+        {
+          return subject.class_name == sub;
+        }
+        return false;
+      });
+    },
 
     //# Checks if the given subject matches the given conditions hash.
     //# This behavior can be overriden by a model adapter by defining two class methods:
@@ -386,6 +427,45 @@
     //  end
     //end
 
+    matches_conditions_hash : function(subject, conditions)
+    {
+      if(!conditions) conditions = this.get("conditions");
+
+      if(_.isEmpty(conditions))
+      {
+        return true;
+      }
+      else
+      {
+        return _.all(conditions, function(name, value) {
+
+          var attribute = subject[name];
+
+          if(_.isObject(value) && !_.isArray(value))
+          {
+            if(_.isArray(attribute))
+            {
+              return _.any(attribute, function(element) {
+                this.matches_conditions_hash(element, value);
+              }, this);
+            }
+            else
+            {
+              return attribute && this.matches_conditions_hash(attribute, value);
+            }
+          }
+          else if(_.isArray(value))
+          {
+            return _.include(value, attribute);
+          }
+          else
+          {
+            return attribute == value;
+          }
+        }, this);
+      }
+    }
+
     //def nested_subject_matches_conditions?(subject_hash)
     //  parent, child = subject_hash.first
     //  matches_conditions_hash?(parent, @conditions[parent.class.name.downcase.to_sym] || {})
@@ -407,3 +487,5 @@
 
 
 }).call(this);
+
+console.log(Ability);
