@@ -1,4 +1,4 @@
-cancan-backbone
-===============
+CanCan for Backbone.js
+======================
 
-A JS port of some of the features from the authorization library CanCan
+This is a libary that makes it possible to pass your CanCan abilities to JS.
