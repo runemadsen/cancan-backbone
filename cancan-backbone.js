@@ -221,12 +221,12 @@
 
     relevant_rules : function(action, subject)
     {
-      var reversed_rules = this.rules.slice(0);
+      var reversed_rules = this.get("rules").slice(0);
       _.select(reversed_rules.reverse(), function(rule)
       {
-        rule.set("expanded_actions") = this.expand_actions(rule.actions)
+        rule.set("expanded_actions", this.expand_actions(rule.actions));
         return rule.is_relevant(action, subject);
-      });
+      }, this);
     }
 
     //def relevant_rules_for_match(action, subject)
@@ -487,5 +487,3 @@
 
 
 }).call(this);
-
-console.log(Ability);
