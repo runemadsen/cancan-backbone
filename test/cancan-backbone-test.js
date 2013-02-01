@@ -323,11 +323,25 @@ test( "should support 'cannot' method to define what user cannot do", function()
 //  @ability.aliased_actions[:modify].should == [:update, :destroy]
 //end
 
+test( "should append aliased actions", function() {
+	var a = new Ability();
+	a.alias_action(["update"], "modify");
+	a.alias_action(["destroy"], "modify");
+	ok(_.isEqual(["update", "destroy"], a.get("aliased_actions")["modify"]));
+});
+
 //it "should clear aliased actions" do
 //  @ability.alias_action :update, :to => :modify
 //  @ability.clear_aliased_actions
 //  @ability.aliased_actions[:modify].should be_nil
 //end
+
+test( "should clear aliased actions", function() {
+	var a = new Ability();
+	a.alias_action(["update"], "modify");
+	a.clear_aliased_actions();
+	equal(undefined, a.get("aliased_actions")["modify"]);
+});
 
 //it "should pass additional arguments to block from can?" do
 //  @ability.can :read, Integer do |int, x|
