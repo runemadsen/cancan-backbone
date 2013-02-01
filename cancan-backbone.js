@@ -25,7 +25,6 @@
         this.set("rules", _.map(this.get("rules"), function(rule) {
           return new Rule(rule);
         }));
-        console.log(this.get("rules"));
       }
     },
 
@@ -161,7 +160,7 @@
         // if both are backbone objects (either class or instance) implementing class_name
         var sub_class     = sub.class_name || sub.constructor.class_name;
         var subject_class = subject.class_name || subject.constructor.class_name;
-        return sub_class && subject_class && sub_class == subject_class;
+        return (sub_class && subject_class && sub_class == subject_class) || sub == subject_class || sub_class == subject;
       });
     },
 

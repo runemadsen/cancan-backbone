@@ -16,11 +16,13 @@ var Comment = Backbone.Model.extend({
 test( "should work when passing in existing object with rules and subjects", function() {
 	var existing = { rules : [
 		{
+			"base_behavior":true,
 			"subjects":["Post"],
 			"actions":["index","show"],
 			"conditions":{"id":1}
 		},
 		{
+			"base_behavior":true,
 			"subjects":["Comment"],
 			"actions":["index","show","new","create"],
 			"conditions":{"post_id":1}
@@ -38,10 +40,21 @@ test( "should work when passing in existing object with rules and subjects", fun
 	ok(a.cannot("new", new Comment({post_id:2})));
 });
 
-
 test( "should work on backbone model", function() {
 	var a = new Ability();
 	a.set_can("read", Post);
+	ok(a.can("read", Post));
+});
+
+test( "should work on backbone model name as string", function() {
+	var a = new Ability();
+	a.set_can("read", Post);
+	ok(a.can("read", "Post"));
+});
+
+test( "should work on backbone model name as string the other way around", function() {
+	var a = new Ability();
+	a.set_can("read", "Post");
 	ok(a.can("read", Post));
 });
 
