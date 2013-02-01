@@ -18,6 +18,17 @@
       }
     },
 
+    initialize : function()
+    {
+      if(!_.isEmpty(this.get("rules")))
+      {
+        this.set("rules", _.map(this.get("rules"), function(rule) {
+          return new Rule(rule);
+        }));
+        console.log(this.get("rules"));
+      }
+    },
+
     can : function(action, subject)
     {
       var match = _.detect(this.relevant_rules(action, subject), function(rule)
@@ -96,8 +107,16 @@
 
     initialize : function()
     {
-      this.set("actions", _.flatten([this.get("action")]));
-      this.set("subjects", _.flatten([this.get("subject")]));
+      if(!this.get("actions") && this.get("action"))
+      {
+        this.set("actions", _.flatten([this.get("action")]));  
+      }
+      
+      if(!this.get("subjects") && this.get("subject"))
+      {
+        this.set("subjects", _.flatten([this.get("subject")]));  
+      }
+
       if(!this.get("conditions"))
       {
         this.set("conditions", {});
