@@ -442,6 +442,14 @@ test( "should not stop at cannot definition when comparing class", function() {
 //  @ability.can?(:read, Range).should be_false
 //end
 
+test( "should stop at cannot definition when no hash is present", function() {
+	var a = new Ability();
+	a.set_can("read", "all");
+	a.set_cannot("read", Post);
+	ok(a.cannot("read", new Post()));
+	ok(a.cannot("read", Post));
+});
+
 //it "should allow to check ability for Module" do
 //  module B; end
 //  class A; include B; end
