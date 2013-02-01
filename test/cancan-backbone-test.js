@@ -102,9 +102,25 @@ test( "should alias update or destroy actions to modify action", function() {
 //  @ability.can?(:increment, 123).should be_true
 //end
 
+test( "should allow deeply nested aliased actions", function() {
+	var a = new Ability();
+	a.alias_action(["increment"], "sort");
+	a.alias_action(["sort"], "modify");
+	a.set_can("modify", "all");
+	ok(a.can("increment", 123));
+});
+
 //it "should raise an Error if alias target is an exist action" do
 //  lambda{ @ability.alias_action :show, :to => :show }.should raise_error(CanCan::Error, "You can't specify target (show) as alias because it is real action name")
 //end
+
+test( "should raise an Error if alias target is an exist action", function() {
+	var a = new Ability();
+	throws(function() {
+		a.alias_action(["show"], "show");	
+	},
+	"You can't specify target (show) as alias because it is real action name");
+});
 
 //it "should always call block with arguments when passing no arguments to can" do
 //  @ability.can do |action, object_class, object|
