@@ -45,14 +45,10 @@
 
     can : function(action, subject)
     {
-      console.log(action, subject);
-    
       var match = _.detect(this.relevant_rules(action, subject), function(rule)
       {
         return rule.matches_conditions(action, subject)
       });
-
-      console.log(match);
 
       return match ? match.get("base_behavior") : false;
     },
