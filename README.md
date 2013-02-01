@@ -74,5 +74,6 @@ ability.can("index", "Comment")  // => true
 ability.set_can("index", Post);
 ability.can("index", Post)  // => true
 ability.can("index", "Post")  // => true
+```
 
 Obviously, you need the class_name of your backbone models to correspond to your Rails models.
