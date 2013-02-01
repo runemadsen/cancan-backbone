@@ -1,5 +1,28 @@
 // REMEMBER TO ADD TEST WITH BACKBONE MODEL THAT IMPLEMENTS class_name
 
+var Post = Backbone.Model.extend({
+	defaults : {
+		id : 1,
+		user_id : 1,
+		title: "Hello!",
+		body: "This is a blog post!"
+	}
+}, {class_name:"Post"});
+
+var Comment = Backbone.Model.extend({
+	defaults : {
+		post_id : 1,
+		user_id : 2,
+		body: "This is a comment!"
+	}
+}, {class_name:"Comment"});
+
+/*
+test( "should work on backbone model", function() {
+	var a = new Ability();
+	a.set_can("read", Post);
+	ok(a.can("read", Post));
+});*/
 
 //it "should be able to :read anything" do
 //  @ability.can :read, :all
@@ -11,7 +34,7 @@ test( "should be able to 'read' anything", function() {
 	var a = new Ability();
 	a.set_can("read", "all");
 	ok( a.can("read", String) );
-	ok( a.can("read", 123) );
+	//ok( a.can("read", 123) );
 });
 
 //it "should not have permission to do something it doesn't know about" do
@@ -20,7 +43,7 @@ test( "should be able to 'read' anything", function() {
 
 test( "should not have permission to do something it doesn't know about", function() {
 	var a = new Ability();
-	equal(false, a.can("foodfight", String));
+	ok(a.cannot("foodfight", String));
 });
 
 //it "should pass true to `can?` when non false/nil is returned in block" do
@@ -150,12 +173,27 @@ test( "should raise an Error if alias target is an exist action", function() {
 //  @ability.can?(:show, 123).should be_true
 //end
 
+test( "should automatically alias index and show into read calls", function() {
+	var a = new Ability();
+	a.set_can("read", "all");
+	ok(a.can("index", 123));
+	ok(a.can("show", 123));
+});
+
 //it "should automatically alias new and edit into create and update respectively" do
 //  @ability.can :create, :all
 //  @ability.can :update, :all
 //  @ability.can?(:new, 123).should be_true
 //  @ability.can?(:edit, 123).should be_true
 //end
+
+test( "should automatically alias new and edit into create and update respectively", function() {
+	var a = new Ability();
+	a.set_can("create", "all");
+	a.set_can("update", "all");
+	ok(a.can("new", 123));
+	ok(a.can("edit", 123));
+});
 
 //it "should not respond to prepare (now using initialize)" do
 //  @ability.should_not respond_to(:prepare)
@@ -165,12 +203,25 @@ test( "should raise an Error if alias target is an exist action", function() {
 //  @ability.cannot?(:tie, String).should be_true
 //end
 
+test( "should offer cannot? method which is simply invert of can?", function() {
+	var a = new Ability();
+	ok(a.cannot("tie", String));
+});
+
 //it "should be able to specify multiple actions and match any" do
 //  @ability.can [:read, :update], :all
 //  @ability.can?(:read, 123).should be_true
 //  @ability.can?(:update, 123).should be_true
 //  @ability.can?(:count, 123).should be_false
 //end
+
+test( "should be able to specify multiple actions and match any", function() {
+	var a = new Ability();
+	a.set_can(["read", "update"], "all")
+	ok(a.can("read", 123));
+	ok(a.can("update", 123));
+	ok(a.cannot("count", 123));
+});
 
 //it "should be able to specify multiple classes and match any" do
 //  @ability.can :update, [String, Range]
@@ -179,12 +230,38 @@ test( "should raise an Error if alias target is an exist action", function() {
 //  @ability.can?(:update, 123).should be_false
 //end
 
+// also test passing in just POST and COMMENT, not an instance of them
+
+test( "should be able to specify multiple classes and match any instances", function() {
+	var a = new Ability();
+	a.set_can("update", [Post, Comment]);
+	ok(a.can("update", new Post()));
+	ok(a.can("update", new Comment()));
+	ok(a.cannot("update", new RegExp()));
+});
+
+test( "should be able to specify multiple classes and match any classes", function() {
+	var a = new Ability();
+	a.set_can("update", [Post, Comment]);
+	ok(a.can("update", Post));
+	ok(a.can("update", Comment));
+	ok(a.cannot("update", RegExp));
+});
+
 //it "should support custom objects in the rule" do
 //  @ability.can :read, :stats
 //  @ability.can?(:read, :stats).should be_true
 //  @ability.can?(:update, :stats).should be_false
 //  @ability.can?(:read, :nonstats).should be_false
 //end
+
+test( "should support custom objects in the rule", function() {
+	var a = new Ability();
+	a.set_can("read", "stats");
+	ok(a.can("read", "stats"));
+	ok(a.cannot("update", "stats"));
+	ok(a.cannot("read", "nonstats"));
+});
 
 //it "should check ancestors of class" do
 //  @ability.can :read, Numeric
@@ -199,6 +276,14 @@ test( "should raise an Error if alias target is an exist action", function() {
 //  @ability.can?(:read, "foo").should be_true
 //  @ability.can?(:read, 123).should be_false
 //end
+
+test( "should support 'cannot' method to define what user cannot do", function() {
+	var a = new Ability();
+	a.set_can("read", "all");
+	a.set_cannot("read", Post);
+	ok(a.can("read", "foo"));
+	ok(a.cannot("read", new Post()));
+});
 
 //it "should pass to previous rule, if block returns false or nil" do
 //  @ability.can :read, :all

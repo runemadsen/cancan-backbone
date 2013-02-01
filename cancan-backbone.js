@@ -7,35 +7,34 @@
 
   root.Ability = Backbone.Model.extend({
 
-    defaults : {
-      
-      //def rules
-      //  @rules ||= []
-      //end
-  
-      rules : [],
-  
-      //def aliased_actions
-      //  @aliased_actions ||= default_alias_actions
-      //end
-  
-      //def default_alias_actions
-      //  {
-      //    :read => [:index, :show],
-      //    :create => [:new],
-      //    :update => [:edit],
-      //  }
-      //end
-  
-      aliased_actions : {
-        read : ["index", "show"],
-        create : ["new"],
-        update : ["edit"]
+    defaults : function() {
+      return {
+        //def rules
+        //  @rules ||= []
+        //end
+    
+        rules : [],
+    
+        //def aliased_actions
+        //  @aliased_actions ||= default_alias_actions
+        //end
+    
+        //def default_alias_actions
+        //  {
+        //    :read => [:index, :show],
+        //    :create => [:new],
+        //    :update => [:edit],
+        //  }
+        //end
+    
+        aliased_actions : {
+          read : ["index", "show"],
+          create : ["new"],
+          update : ["edit"]
+        }
       }
-
     },
     
-
     //def can?(action, subject, *extra_args)
     //  match = relevant_rules_for_match(action, subject).detect do |rule|
     //    rule.matches_conditions?(action, subject, extra_args)
@@ -48,7 +47,7 @@
       var match = _.detect(this.relevant_rules(action, subject), function(rule)
       {
         return rule.matches_conditions(action, subject)
-      });
+      }, this);
 
       return match ? match.get("base_behavior") : false;
     },
@@ -387,11 +386,10 @@
     matches_subject_class : function(subject)
     {
       return _.any(this.get("subjects"), function(sub) {
-        if(_.isObject(subject) && subject.class_name)
-        {
-          return subject.class_name == sub;
-        }
-        return false;
+        // if both are backbone objects (either class or instance) implementing class_name
+        var sub_class     = sub.class_name || sub.constructor.class_name;
+        var subject_class = subject.class_name || subject.constructor.class_name;
+        return sub_class && subject_class && sub_class == subject_class;
       });
     },
 
