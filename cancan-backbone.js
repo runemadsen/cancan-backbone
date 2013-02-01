@@ -45,11 +45,16 @@
 
     can : function(action, subject)
     {
+      console.log(action, subject);
+    
       var match = _.detect(this.relevant_rules(action, subject), function(rule)
       {
-        rule.matches_conditions(action, subject)
+        return rule.matches_conditions(action, subject)
       });
-      return match ? match.base_behavior : false;
+
+      console.log(match);
+
+      return match ? match.get("base_behavior") : false;
     },
 
     //def cannot?(*args)
@@ -102,7 +107,7 @@
 
     validate_target : function(target)
     {
-      if(_.chain(this.get("aliased_actions")).values().flatten().include(target))
+      if(_.chain(this.get("aliased_actions")).values().flatten().include(target).value())
       {
         throw new Error("You can't specify target ("+target+") as alias because it is real action name");
       }
@@ -197,7 +202,7 @@
         {
           return action;
         }
-      }, this).flatten();
+      }, this).flatten().value();
     },
 
     //# Given an action, it will try to find all of the actions which are aliased to it.
@@ -222,9 +227,9 @@
     relevant_rules : function(action, subject)
     {
       var reversed_rules = this.get("rules").slice(0);
-      _.select(reversed_rules.reverse(), function(rule)
+      return _.select(reversed_rules.reverse(), function(rule)
       {
-        rule.set("expanded_actions", this.expand_actions(rule.actions));
+        rule.set("expanded_actions", this.expand_actions(rule.get("actions")));
         return rule.is_relevant(action, subject);
       }, this);
     }
@@ -272,8 +277,8 @@
 
     initialize : function()
     {
-      this.set("actions", _.flatten(this.get("action")));
-      this.set("subjects", _.flatten(this.get("subject")));
+      this.set("actions", _.flatten([this.get("action")]));
+      this.set("subjects", _.flatten([this.get("subject")]));
       if(!this.get("conditions"))
       {
         this.set("conditions", {});
@@ -311,7 +316,7 @@
     {
       if(_.isObject(this.get("conditions")))
       {
-        this.matches_conditions_hash(subject);
+        return this.matches_conditions_hash(subject);
       }
       else
       {
@@ -365,7 +370,7 @@
 
     matches_action : function(action)
     {
-      _.include(this.get("expanded_actions"), "manage") || _.include(this.get("expanded_actions"), action)
+      return _.include(this.get("expanded_actions"), "manage") || _.include(this.get("expanded_actions"), action)
     },
 
     //def matches_subject?(subject)
@@ -374,7 +379,7 @@
 
     matches_subject : function(subject)
     {
-      _.include(this.get("subjects"), "all") || _.include(this.get("subjects"), subject) || this.matches_subject_class(subject)
+      return _.include(this.get("subjects"), "all") || _.include(this.get("subjects"), subject) || this.matches_subject_class(subject)
     },
 
     //def matches_subject_class?(subject)
