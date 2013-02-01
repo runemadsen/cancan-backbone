@@ -459,7 +459,7 @@
           }
           else if(_.isArray(value))
           {
-            return _.include(value, attribute);
+            return _.include(value, attribute) || _.isEqual(value, attribute);
           }
           else
           {

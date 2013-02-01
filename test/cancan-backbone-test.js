@@ -13,12 +13,12 @@ var Comment = Backbone.Model.extend({
 	}
 }, {class_name:"Comment"});
 
-/*
+
 test( "should work on backbone model", function() {
 	var a = new Ability();
 	a.set_can("read", Post);
 	ok(a.can("read", Post));
-});*/
+});
 
 //it "should be able to :read anything" do
 //  @ability.can :read, :all
@@ -362,14 +362,20 @@ test( "should use conditions as third parameter and determine abilities from it"
 	ok(a.can("read", Post));
 });
 
-// also try with ID
-
 //it "should allow an array of options in conditions hash" do
 //  @ability.can :read, Range, :begin => [1, 3, 5]
 //  @ability.can?(:read, 1..3).should be_true
 //  @ability.can?(:read, 2..4).should be_false
 //  @ability.can?(:read, 3..5).should be_true
 //end
+
+test( "should allow an array of options in conditions hash", function() {
+	var a = new Ability();
+	a.set_can("read", Post, { tags: ["awesome", "cool", "pretty"] });
+	ok(a.can("read", new Post({ tags: ["awesome", "cool", "pretty"] })));
+	ok(a.cannot("read", new Post({ tags: ["ugly", "bad"] })));
+	ok(a.can("read", Post));
+});
 
 //it "should allow a range of options in conditions hash" do
 //  @ability.can :read, Range, :begin => 1..3
