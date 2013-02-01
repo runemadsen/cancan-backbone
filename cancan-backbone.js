@@ -309,7 +309,7 @@
 
     matches_conditions : function(action, subject)
     {
-      if(_.isObject(this.get("conditions")))
+      if(_.isObject(this.get("conditions")) && !_.isEmpty(this.get("conditions")) && !this.subject_class(subject))
       {
         return this.matches_conditions_hash(subject);
       }
@@ -358,6 +358,11 @@
     //  klass = (subject.kind_of?(Hash) ? subject.values.first : subject).class
     //  klass == Class || klass == Module
     //end
+
+    subject_class : function(subject)
+    {
+      return subject.class_name ? true : false;
+    },
 
     //def matches_action?(action)
     //  @expanded_actions.include?(:manage) || @expanded_actions.include?(action)
@@ -436,9 +441,8 @@
       }
       else
       {
-        return _.all(conditions, function(name, value) {
-
-          var attribute = subject[name];
+        return _.all(conditions, function(value, name) {
+          var attribute = subject[name] || subject.get(name);
 
           if(_.isObject(value) && !_.isArray(value))
           {

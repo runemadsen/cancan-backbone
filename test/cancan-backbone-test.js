@@ -2,8 +2,6 @@
 
 var Post = Backbone.Model.extend({
 	defaults : {
-		id : 1,
-		user_id : 1,
 		title: "Hello!",
 		body: "This is a blog post!"
 	}
@@ -11,8 +9,6 @@ var Post = Backbone.Model.extend({
 
 var Comment = Backbone.Model.extend({
 	defaults : {
-		post_id : 1,
-		user_id : 2,
 		body: "This is a comment!"
 	}
 }, {class_name:"Comment"});
@@ -357,6 +353,16 @@ test( "should clear aliased actions", function() {
 //  @ability.can?(:read, 1..4).should be_false
 //  @ability.can?(:read, Range).should be_true
 //end
+
+test( "should use conditions as third parameter and determine abilities from it", function() {
+	var a = new Ability();
+	a.set_can("read", Post, { title: "Hello" });
+	ok(a.can("read", new Post({ title: "Hello"})));
+	ok(a.cannot("read", new Post({ title: "Goodbye"})));
+	ok(a.can("read", Post));
+});
+
+// also try with ID
 
 //it "should allow an array of options in conditions hash" do
 //  @ability.can :read, Range, :begin => [1, 3, 5]
