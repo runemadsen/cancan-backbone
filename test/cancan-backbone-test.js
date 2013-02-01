@@ -390,6 +390,13 @@ test( "should allow an array of options in conditions hash", function() {
 //  @ability.can?(:read, 6..8).should be_false
 //end
 
+test( "should allow nested hashes in conditions hash", function() {
+	var a = new Ability();
+	a.set_can("read", Post, {comment: {user_id:1}});
+	ok(a.can("read", new Post({comment: {user_id:1}})));
+	ok(a.cannot("read", new Post({comment: {user_id:2}})));
+});
+
 //it "should match any element passed in to nesting if it's an array (for has_many associations)" do
 //  @ability.can :read, Range, :to_a => { :to_i => 3 }
 //  @ability.can?(:read, 1..5).should be_true
@@ -418,6 +425,15 @@ test( "should allow an array of options in conditions hash", function() {
 //  @ability.can?(:read, 1..5).should be_false
 //  @ability.can?(:read, Range).should be_true
 //end
+
+test( "should not stop at cannot definition when comparing class", function() {
+	var a = new Ability();
+	a.set_can("read", Post);
+	a.set_cannot("read", Post, {id:1});
+	ok(a.can("read", new Post({id:2})));
+	ok(a.cannot("read", new Post({id:1})));
+	ok(a.can("read", Post));
+});
 
 //it "should stop at cannot definition when no hash is present" do
 //  @ability.can :read, :all
