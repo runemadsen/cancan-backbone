@@ -13,10 +13,10 @@ Setup
 
 First Drop the cancan-backbone.js file in your assets folder.
 
-Then in you Backbone models, implement a class_name var:
+Then in you Backbone models, implement a backboneClass var:
 
 ```
-var Comment = Backbone.Model.extend({}, {class_name:"Comment"});
+var Comment = Backbone.Model.extend({}, {backboneClass:"Comment"});
 ```
 
 In your controller/helper, implement a method that exports you abilities to JSON. This looks something like this:
@@ -76,4 +76,4 @@ ability.can("index", Post)  // => true
 ability.can("index", "Post")  // => true
 ```
 
-Obviously, you need the class_name of your backbone models to correspond to your Rails models.
+Obviously, you need the backboneClass of your backbone models to correspond to your Rails models.

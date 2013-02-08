@@ -141,7 +141,7 @@
 
     subject_class : function(subject)
     {
-      return subject.class_name ? true : false;
+      return subject.backboneClass ? true : false;
     },
 
     matches_action : function(action)
@@ -157,9 +157,9 @@
     matches_subject_class : function(subject)
     {
       return _.any(this.get("subjects"), function(sub) {
-        // if both are backbone objects (either class or instance) implementing class_name
-        var sub_class     = sub.class_name || sub.constructor.class_name;
-        var subject_class = subject.class_name || subject.constructor.class_name;
+        // if both are backbone objects (either class or instance) implementing backboneClass
+        var sub_class     = sub.backboneClass || sub.constructor.backboneClass;
+        var subject_class = subject.backboneClass || subject.constructor.backboneClass;
         return (sub_class && subject_class && sub_class == subject_class) || sub == subject_class || sub_class == subject;
       });
     },

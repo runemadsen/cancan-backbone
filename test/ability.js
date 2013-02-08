@@ -1,17 +1,15 @@
-// REMEMBER TO ADD TEST WITH BACKBONE MODEL THAT IMPLEMENTS class_name
-
 var Post = Backbone.Model.extend({
 	defaults : {
 		title: "Hello!",
 		body: "This is a blog post!"
 	}
-}, {class_name:"Post"});
+}, {backboneClass:"Post"});
 
 var Comment = Backbone.Model.extend({
 	defaults : {
 		body: "This is a comment!"
 	}
-}, {class_name:"Comment"});
+}, {backboneClass:"Comment"});
 
 test( "should work when passing in existing object with rules and subjects", function() {
 	var existing = { rules : [
