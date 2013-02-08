@@ -30,7 +30,7 @@ Will only work if your API json response for that comment model looks like this:
 }
 ```
 
-On the API side, this will probably be way too slow for larger sets of asscoaitions, but that's just how it is right now. If I had time, I would probably try to implement some type of lazy-loading of associations.
+On the API side, this will probably be way too slow for larger sets of associations, but that's just how it is right now. If I had time, I would probably try to implement some type of lazy-loading of associations.
 
 
 Setup
