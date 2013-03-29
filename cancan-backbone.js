@@ -175,7 +175,11 @@
       else
       {
         return _.all(conditions, function(value, name) {
-          var attribute = subject[name] || subject.get(name);
+          var attribute = subject[name];
+
+          if (_.isUndefined(attribute)) {
+            attribute = subject.get(name);
+          }
 
           if(_.isObject(value) && !_.isArray(value))
           {
