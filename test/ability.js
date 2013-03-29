@@ -189,6 +189,13 @@ test( "should allow nested hashes in conditions hash", function() {
 	ok(a.cannot("read", new Post({comment: {user_id:2}})));
 });
 
+test( "should allow false values conditions hash", function() {
+	var a = new Ability();
+	a.set_can("read", Post, {comment: {is_protected:false}});
+	ok(a.can("read", new Post({comment: {is_protected:false}})));
+	ok(a.cannot("read", new Post({comment: {is_protected:true}})));
+});
+
 test( "should not stop at cannot definition when comparing class", function() {
 	var a = new Ability();
 	a.set_can("read", Post);
