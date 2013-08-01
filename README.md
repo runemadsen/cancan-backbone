@@ -104,3 +104,9 @@ ability.can("index", "Post")  // => true
 ```
 
 Obviously, you need the backboneClass of your backbone models to correspond to your Rails models.
+
+Contributors
+------------
+
+- @runemadsen
+- @bogn
