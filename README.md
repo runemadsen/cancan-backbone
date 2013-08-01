@@ -36,9 +36,9 @@ On the API side, this will probably be way too slow for larger sets of associati
 Setup
 -----
 
-First Drop the cancan-backbone.js file in your assets folder.
+First drop the cancan-backbone.js file into your assets folder.
 
-Then in you Backbone models, implement a backboneClass var:
+Then in your Backbone models, add a backboneClass class property, make sure you define it in the object that is the second parameter to Backbone.Model.extend. The second object is for classProperties:
 
 ```
 var Comment = Backbone.Model.extend({}, {backboneClass:"Comment"});
@@ -48,15 +48,17 @@ In your controller/helper, implement a method that exports you abilities to JSON
 
 ```
 def ability_to_array(a)
-  	a.instance_variable_get("@rules").collect{ |rule| 
-      { 
-      	:base_behavior => rule.instance_variable_get("@base_behavior"),
-        :subjects => rule.instance_variable_get("@subjects").map { |s| s.to_s }, 
-        :actions => rule.instance_variable_get("@actions").map { |a| a.to_s },
-        :conditions => rule.instance_variable_get("@conditions")
+  a.instance_variable_get("@rules").collect do |rule| 
+    rule.instance_eval do
+      {
+        :base_behavior => @base_behavior,
+        :subjects => @subjects.map(&:to_s),
+        :actions => @actions.map(&:to_s),
+        :conditions => @conditions
       }
-    }
+    end
   end
+end
 ```
 
 ... and can be used like this:
