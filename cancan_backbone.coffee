@@ -14,10 +14,12 @@
         create: ["new"]
         update: ["edit"]
 
-    initialize: ->
+    initialize: (attributes, options = {}) ->
+      @options = options
+      @options.rule ?= options.rule
       unless _.isEmpty(@get("rules"))
-        @set "rules", _.map(@get("rules"), (rule) ->
-          new Rule(rule)
+        @set "rules", _.map(@get("rules"), (rule) =>
+          new Rule(rule, @options.rule)
         )
       return
 
@@ -32,19 +34,23 @@
 
     set_can: (action, subject, conditions) ->
       @get("rules").push new Rule(
-        base_behavior: true
-        action: action
-        subject: subject
-        conditions: conditions
+        {
+          base_behavior: true
+          action: action
+          subject: subject
+          conditions: conditions
+        }, @options.rule
       )
       return
 
     set_cannot: (action, subject, conditions) ->
       @get("rules").push new Rule(
-        base_behavior: false
-        action: action
-        subject: subject
-        conditions: conditions
+        {
+          base_behavior: false
+          action: action
+          subject: subject
+          conditions: conditions
+        }, @options.rule
       )
       return
 
@@ -80,14 +86,20 @@
   # Rule
   #  -----------------------------------------------------------------
   root.Rule = Backbone.Model.extend(
-    initialize: ->
+    initialize: (attributes, options = {}) ->
+      (@options = options).backboneClass ?= 'backboneClass' # or pass a function.
+
       @set "actions", _.flatten([@get("action")])  if not @get("actions") and @get("action")
       @set "subjects", _.flatten([@get("subject")])  if not @get("subjects") and @get("subject")
       @set "conditions", {}  unless @get("conditions")
       return
 
     backbone_class: (sub = null) ->
-      sub?.backboneClass
+      if _.isString(@options.backboneClass)
+        sub?[@options.backboneClass]
+      else if _.isFunction(@options.backboneClass)
+        @options.backboneClass(sub)
+
 
     is_relevant: (action, subject) ->
       @matches_action(action) and @matches_subject(subject)
