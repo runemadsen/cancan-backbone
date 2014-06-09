@@ -1,4 +1,11 @@
 do (Backbone) ->
+  User = Backbone.Model.extend(
+    modelName: 'user'
+    className: ->
+      up = @modelName.split('')
+      up.shift().toUpperCase() + up.join('')
+  )
+
   Post = Backbone.Model.extend(
     defaults:
       title: "Hello!"
@@ -45,6 +52,24 @@ do (Backbone) ->
     ok a.can("new", Comment)
     ok a.can("new", new Comment(post_id: 1))
     ok a.cannot("new", new Comment(post_id: 2))
+    return
+
+  test "should be able to pass options to rule", ->
+    a = new Ability({}, {rule: backboneClass: 'foo'})
+    ok a.options.rule.backboneClass is 'foo'
+    return
+
+  test "should lookup default backboneClass by attribute `backboneClass`", ->
+    r = new Rule()
+    ok r.backbone_class(Post) is 'Post'
+    return
+
+  test "should be able lookup backboneClass by passing a function", ->
+    lfcs = (sub) ->
+      up = (new sub).modelName.split('');
+      up.shift().toUpperCase() + up.join('')
+    r = new Rule({}, {backboneClass: lfcs})
+    ok r.backbone_class(User) is 'User'
     return
 
   test "should work on backbone model", ->
