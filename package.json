@@ -2,7 +2,9 @@
   "title": "cancan-backbone",
   "name": "cancan-backbone",
   "version": "0.0.1",
-  "author": "Rune Madsen",
+  "author": {
+    "name": "Rune Madsen"
+  },
   "description": "A library with Javascript bindings for the Ruby access control library CanCan",
   "repository": {
     "type": "git",
@@ -13,7 +15,8 @@
     "gutil": "~1.1.0",
     "gulp-coffee": "~2.0.1",
     "gulp-connect": "~2.0.5",
-    "gulp-sourcemaps": "~0.4.0"
+    "gulp-sourcemaps": "~0.4.0",
+    "node-qunit-phantomjs": "~0.2.1"
   },
   "dependencies": {},
   "bugs": {
@@ -33,5 +36,9 @@
     "ruby",
     "javascript"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "readme": "CanCan for Backbone.js\n======================\n\nReal-world web applications often rely on a combination of server-side and client-side code. If you're building a Rails application, you're probably relying on an access control library like CanCan, and a JS framework like Backbone.js for client side rendering.\n\nThis library makes it possible to export your CanCan abilities from Ruby to JS, and do the same access checks on the client side. This is great for doing UI-specific functionality, but should of course be backed by an API with tight access control.\n\nThe JS code was adapted directly from the CanCan Ruby code, but without Ruby-specific functionality like blocks, etc.\n\n\nCoverage\n--------\n\nSee the tests for coverage. Most of the CanCan functionality has been implemented, although only the action, subject and conditions will be used in the JS library. Your ability blocks will not work.\n\nModel associations will work, if you return the data in the main model response. This means that this rule:\n\n```\nability.set_can(\"read\", Comment, { user: { id: 1 }});\n```\n\nWill only work if your API json response for that comment model looks like this:\n\n```\n{\n\t\"body\" : \"This is a comment\",\n\t\"user\" : {\n\t\t\"id\" : 1\n\t}\n}\n```\n\nOn the API side, this will probably be way too slow for larger sets of associations, but that's just how it is right now. If I had time, I would probably try to implement some type of lazy-loading of associations.\n\n\nSetup\n-----\n\nFirst drop the cancan-backbone.js file into your assets folder.\n\nThen in your Backbone models, add a backboneClass class property, make sure you define it in the object that is the second parameter to Backbone.Model.extend. The second object is for classProperties:\n\n```\nvar Comment = Backbone.Model.extend({}, {backboneClass:\"Comment\"});\n```\n\nIn your controller/helper, implement a method that exports you abilities to JSON. This looks something like this:\n\n```\ndef ability_to_array(a)\n  a.instance_variable_get(\"@rules\").collect do |rule| \n    rule.instance_eval do\n      {\n        :base_behavior => @base_behavior,\n        :subjects => @subjects.map(&:to_s),\n        :actions => @actions.map(&:to_s),\n        :conditions => @conditions\n      }\n    end\n  end\nend\n```\n\n... and can be used like this:\n\n```\n@js_abilities = ability_to_array(current_ability)\n```\n\nIn your view, you can now pass the abilities into js:\n\n```\nvar ability = new Ability({rules : <%= @js_abilities.to_json.html_safe %>});\n````\n\nUsage\n------------\n\nIf you already loaded your abilities into your model, you're all ready to check for access:\n\n```\nability.can(\"read\", Comment);\nability.can(\"read\", \"custom\");\nability.can(\"read\", new Comment());\n```\n\nIf you want to set abilities from JS, you need to use the set_ functions:\n\n```\nability.set_can(\"read\", Comment, {id:1});\nability.set_can(\"read\", \"somethingelse\");\n```\n\nIt's also possible to pass the name of your Backbone models as strings. It will still work:\n\n```\nability.set_can(\"index\", \"Comment\");\nability.can(\"index\", Comment)  // => true\nability.can(\"index\", \"Comment\")  // => true\n\nability.set_can(\"index\", Post);\nability.can(\"index\", Post)  // => true\nability.can(\"index\", \"Post\")  // => true\n```\n\nObviously, you need the backboneClass of your backbone models to correspond to your Rails models.\n\nContributors\n------------\n\n- @runemadsen\n- @bogn\n",
+  "readmeFilename": "README.md",
+  "_id": "cancan-backbone@0.0.1",
+  "_from": "cancan-backbone@"
 }
