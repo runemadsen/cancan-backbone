@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "author": "Rune Madsen",
   "description": "A library with Javascript bindings for the Ruby access control library CanCan",
-  "repository": "https://github.com/easyPEP/cancan-backbone.git",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/easyPEP/cancan-backbone.git"
+  },
   "devDependencies": {
     "gulp": "~3.7.0",
     "gutil": "~1.1.0",
@@ -12,5 +15,23 @@
     "gulp-connect": "~2.0.5",
     "gulp-sourcemaps": "~0.4.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "bugs": {
+    "url": "https://github.com/easyPEP/cancan-backbone/issues"
+  },
+  "homepage": "https://github.com/easyPEP/cancan-backbone",
+  "main": "./build/cancan_backbone.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "gulp qunit"
+  },
+  "keywords": [
+    "cancan",
+    "abilities",
+    "ruby",
+    "javascript"
+  ],
+  "license": "MIT"
 }
